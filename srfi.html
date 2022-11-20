@@ -128,341 +128,90 @@ end</code></pre>
 	Known identifiers are tracked in the <a href="https://registry.scheme.org/">Scheme Registry</a>.</p>
 
       <h2 id="examples">Examples</h2>
-      <p>Chez Scheme:</p>
-  <div class="sourceCode" id="cb2">
-    <pre class="sourceCode scheme"><code class=
-    "sourceCode scheme"><span id="cb2-1"><a href="#cb2-1"
-    aria-hidden="true" tabindex="-1"></a><span class=
-    "st">#&lt;void&gt;</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex=
-"-1"></a></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex=
-"-1"></a><span class="st">#&lt;procedure&gt;</span></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex=
-"-1"></a></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex=
-"-1"></a><span class="st">#&lt;procedure</span><span class=
-"ot"> +</span><span class="st">&gt;</span></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex=
-"-1"></a></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex=
-"-1"></a><span class="st">#&lt;procedure</span><span class=
-"ot"> fold-left</span><span class="st">&gt;</span></span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex=
-"-1"></a></span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex=
-"-1"></a><span class="st">#&lt;environment</span><span class=
-"ot"> *top*</span><span class="st">&gt;</span></span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex=
-"-1"></a></span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex=
-"-1"></a><span class="st">#&lt;input/output</span><span class=
-"ot"> port stdin/out</span><span class=
-"st">&gt;</span></span></code></pre>
-  </div>
-  <p>Chibi-Scheme:</p>
-  <div class="sourceCode" id="cb3">
-    <pre class="sourceCode scheme"><code class=
-    "sourceCode scheme"><span id="cb3-1"><a href="#cb3-1"
-    aria-hidden="true" tabindex="-1"></a><span class=
-    "st">#&lt;undef&gt;</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex=
-"-1"></a></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex=
-"-1"></a><span class="st">#&lt;eof&gt;</span></span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex=
-"-1"></a></span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex=
-"-1"></a><span class="st">#&lt;procedure</span><span class=
-"ot"> #f 0</span><span class="st">&gt;</span></span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex=
-"-1"></a></span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex=
-"-1"></a><span class="st">#&lt;procedure</span><span class=
-"ot"> append 0+</span><span class="st">&gt;</span></span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex=
-"-1"></a></span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex=
-"-1"></a><span class="st">#&lt;opcode</span><span class=
-"ot"> "write-char"</span><span class="st">&gt;</span></span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex=
-"-1"></a></span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex=
-"-1"></a><span class="st">#&lt;Output-Port</span><span class=
-"ot"> 140501393508544</span><span class="st">&gt;</span></span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex=
-"-1"></a></span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex=
-"-1"></a><span class="st">#&lt;Environment</span><span class=
-"ot"> 140501393819456</span><span class=
-"st">&gt;</span></span></code></pre>
-  </div>
-  <p>Chicken:</p>
-  <div class="sourceCode" id="cb4">
-    <pre class="sourceCode scheme"><code class=
-    "sourceCode scheme"><span id="cb4-1"><a href="#cb4-1"
-    aria-hidden="true" tabindex="-1"></a><span class=
-    "st">#&lt;unspecified&gt;</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex=
-"-1"></a></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex=
-"-1"></a><span class="st">#&lt;procedure</span><span class=
-"ot"> C_plus</span><span class="st">&gt;</span></span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex=
-"-1"></a></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex=
-"-1"></a><span class="st">#&lt;procedure</span><span class=
-"ot"> (?)</span><span class="st">&gt;</span></span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex=
-"-1"></a></span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex=
-"-1"></a><span class="st">#&lt;procedure</span><span class=
-"ot"> (scheme#write x . rest)</span><span class=
-"st">&gt;</span></span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex=
-"-1"></a></span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex=
-"-1"></a><span class="st">#&lt;promise&gt;</span></span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex=
-"-1"></a></span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex=
-"-1"></a><span class="st">#&lt;output</span><span class=
-"ot"> port "(stdout)"</span><span class="st">&gt;</span></span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex=
-"-1"></a></span>
-<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex=
-"-1"></a><span class="st">#&lt;environment</span><span class=
-"ot"> interaction-environment</span><span class=
-"st">&gt;</span></span></code></pre>
-  </div>
-  <p>Chicken eggs:</p>
-  <div class="sourceCode" id="cb5">
-    <pre class="sourceCode scheme"><code class=
-    "sourceCode scheme"><span id="cb5-1"><a href="#cb5-1"
-    aria-hidden="true" tabindex="-1"></a><span class=
-    "st">#&lt;procedure</span><span class=
-    "ot"> (tween#quadratic-ease direction123 percent124)</span><span class="st">&gt;</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex=
-"-1"></a></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex=
-"-1"></a><span class="st">#&lt;cjson&gt;</span></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex=
-"-1"></a></span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex=
-"-1"></a><span class="st">#&lt;sql-null-type&gt;</span></span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex=
-"-1"></a></span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex=
-"-1"></a><span class="st">#&lt;sdl2:surface&gt;</span></span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex=
-"-1"></a></span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex=
-"-1"></a><span class="st">#&lt;sdl2:rect</span><span class=
-"ot"> (10 20 300 400)</span><span class="st">&gt;</span></span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex=
-"-1"></a></span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex=
-"-1"></a><span class="st">#&lt;mat</span><span class=
-"ot"> 2x2:</span></span>
-<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex=
-"-1"></a><span class="ot">4.0 0.0</span></span>
-<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex=
-"-1"></a><span class="ot">0.0 4.0 </span><span class=
-"st">&gt;</span></span></code></pre>
-  </div>
-  <p>Gambit:</p>
-  <div class="sourceCode" id="cb6">
-    <pre class="sourceCode scheme"><code class=
-    "sourceCode scheme"><span id="cb6-1"><a href="#cb6-1"
-    aria-hidden="true" tabindex="-1"></a><span class=
-    "st">#&lt;procedure</span><span class=
-    "ot"> #2</span><span class="st">&gt;</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex=
-"-1"></a></span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex=
-"-1"></a><span class="st">#&lt;procedure</span><span class=
-"ot"> #3 fold</span><span class="st">&gt;</span></span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex=
-"-1"></a></span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex=
-"-1"></a><span class="st">#&lt;promise</span><span class=
-"ot"> #6</span><span class="st">&gt;</span></span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex=
-"-1"></a></span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex=
-"-1"></a><span class="st">#&lt;output-port</span><span class=
-"ot"> #2 (stdout)</span><span class=
-"st">&gt;</span></span></code></pre>
-  </div>
-  <p>Gauche:</p>
-  <div class="sourceCode" id="cb7">
-    <pre class="sourceCode scheme"><code class=
-    "sourceCode scheme"><span id="cb7-1"><a href="#cb7-1"
-    aria-hidden="true" tabindex="-1"></a><span class=
-    "st">#&lt;undef&gt;</span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex=
-"-1"></a></span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex=
-"-1"></a><span class="st">#&lt;eof&gt;</span></span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex=
-"-1"></a></span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex=
-"-1"></a><span class="st">#&lt;closure</span><span class=
-"ot"> (fold kons knil lis . more)</span><span class=
-"st">&gt;</span></span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex=
-"-1"></a></span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex=
-"-1"></a><span class="st">#&lt;subr</span><span class=
-"ot"> (+ :rest args)</span><span class="st">&gt;</span></span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex=
-"-1"></a></span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex=
-"-1"></a><span class="st">#&lt;subr</span><span class=
-"ot"> "continuation"</span><span class="st">&gt;</span></span>
-<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex=
-"-1"></a></span>
-<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex=
-"-1"></a><span class="st">#&lt;promise</span><span class=
-"ot"> 0x102097fa0</span><span class="st">&gt;</span></span>
-<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex=
-"-1"></a></span>
-<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex=
-"-1"></a><span class="st">#&lt;subr</span><span class=
-"ot"> #&lt;&lt;parameter</span><span class=
-"st">&gt; 0x102ae8800&gt;&gt;</span></span>
-<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex=
-"-1"></a></span>
-<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex=
-"-1"></a><span class="st">#&lt;oport</span><span class=
-"ot"> (standard output) 0x100d3cc00</span><span class=
-"st">&gt;</span></span>
-<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex=
-"-1"></a></span>
-<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex=
-"-1"></a><span class="st">#&lt;module</span><span class=
-"ot"> user</span><span class="st">&gt;</span></span></code></pre>
-  </div>
-  <p>Guile:</p>
-  <div class="sourceCode" id="cb8">
-    <pre class="sourceCode scheme"><code class=
-    "sourceCode scheme"><span id="cb8-1"><a href="#cb8-1"
-    aria-hidden="true" tabindex="-1"></a><span class=
-    "st">#&lt;unspecified&gt;</span></span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex=
-"-1"></a></span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex=
-"-1"></a><span class="st">#&lt;eof&gt;</span></span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex=
-"-1"></a></span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex=
-"-1"></a><span class="st">#&lt;procedure</span><span class=
-"ot"> + (#:optional _ _ . _)</span><span class=
-"st">&gt;</span></span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex=
-"-1"></a></span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex=
-"-1"></a><span class="st">#&lt;continuation</span><span class=
-"ot"> 10716dae0</span><span class="st">&gt;</span></span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex=
-"-1"></a></span>
-<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex=
-"-1"></a><span class="st">#&lt;promise</span><span class=
-"ot"> #&lt;procedure 7f9b6980e6a0 at &lt;unknown port</span><span class="st">&gt;:11:0 ()&gt;&gt;</span></span>
-<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex=
-"-1"></a></span>
-<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex=
-"-1"></a><span class="st">#&lt;output:</span><span class=
-"ot"> file /dev/ttys001</span><span class=
-"st">&gt;</span></span></code></pre>
-  </div>
-  <p>Kawa:</p>
-  <div class="sourceCode" id="cb9">
-    <pre class="sourceCode scheme"><code class=
-    "sourceCode scheme"><span id="cb9-1"><a href="#cb9-1"
-    aria-hidden="true" tabindex="-1"></a><span class=
-    "st">#&lt;procedure</span><span class="ot"> +</span><span class=
-    "st">&gt;</span></span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex=
-"-1"></a></span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex=
-"-1"></a><span class="st">#&lt;macro</span><span class=
-"ot"> define</span><span class="st">&gt;</span></span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex=
-"-1"></a></span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex=
-"-1"></a><span class="st">#&lt;environment</span><span class=
-"ot"> main</span><span class="st">&gt;</span></span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex=
-"-1"></a></span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex=
-"-1"></a><span class="st">#&lt;output-port</span><span class=
-"ot"> /dev/stdout</span><span class="st">&gt;</span></span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex=
-"-1"></a></span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex=
-"-1"></a><span class="st">#&lt;location-proc</span><span class=
-"ot"> gnu.mapping.ThreadLocation[param#1]</span><span class=
-"st">&gt;</span></span></code></pre>
-  </div>
-  <p>Mosh:</p>
-  <div class="sourceCode" id="cb10">
-    <pre class="sourceCode scheme"><code class=
-    "sourceCode scheme"><span id="cb10-1"><a href="#cb10-1"
-    aria-hidden="true" tabindex="-1"></a><span class=
-    "st">#&lt;unspecified&gt;</span></span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex=
-"-1"></a></span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex=
-"-1"></a><span class="st">#&lt;subr</span><span class=
-"ot"> +</span><span class="st">&gt;</span></span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex=
-"-1"></a></span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex=
-"-1"></a><span class="st">#&lt;closure</span><span class=
-"ot"> 62157904</span><span class="st">&gt;</span></span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex=
-"-1"></a></span>
-<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex=
-"-1"></a><span class=
-"st">#&lt;eof-object&gt;</span></span></code></pre>
-  </div>
-  <p>Sagittarius:</p>
-  <div class="sourceCode" id="cb11">
-    <pre class="sourceCode scheme"><code class=
-    "sourceCode scheme"><span id="cb11-1"><a href="#cb11-1"
-    aria-hidden="true" tabindex="-1"></a><span class=
-    "st">#&lt;unspecified&gt;</span></span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex=
-"-1"></a></span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex=
-"-1"></a><span class="st">#&lt;eof&gt;</span></span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex=
-"-1"></a></span>
-<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex=
-"-1"></a><span class="st">#&lt;subr</span><span class=
-"ot"> + 0:1</span><span class="st">&gt;</span></span>
-<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex=
-"-1"></a></span>
-<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex=
-"-1"></a><span class="st">#&lt;closure</span><span class=
-"ot"> #f 0:0</span><span class="st">&gt;</span></span>
-<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex=
-"-1"></a></span>
-<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex=
-"-1"></a><span class=
-"st">#&lt;&lt;promise&gt; 0x10d5200c0&gt;</span></span>
-<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex=
-"-1"></a></span>
-<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex=
-"-1"></a><span class=
-"st">#&lt;&lt;parameter&gt; 0x1061970a0&gt;</span></span>
-<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex=
-"-1"></a></span>
-<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex=
-"-1"></a><span class="st">#&lt;transcoded-port</span><span class=
-"ot"> utf8-codec #&lt;buffered-port #&lt;binary-output-port stdout</span><span class="st">&gt;&gt;&gt;</span></span></code></pre>
-  </div>
+
+      <h3>Chez Scheme</h3>
+      <pre>
+#&lt;void&gt;
+#&lt;procedure&gt;
+#&lt;procedure +&gt;
+#&lt;procedure fold-left&gt;
+#&lt;environment *top*&gt;
+#&lt;input/output port stdin/out&gt;</pre>
+
+      <h3>Chibi-Scheme</h3>
+      <pre>#&lt;undef&gt;
+#&lt;eof&gt;
+#&lt;procedure #f 0&gt;
+#&lt;procedure append 0+&gt;
+#&lt;opcode "write-char"&gt;
+#&lt;Output-Port 140501393508544&gt;
+#&lt;Environment 140501393819456&gt;</pre>
+
+      <h3>Chicken</h3>
+      <pre>#&lt;unspecified&gt;
+#&lt;procedure C_plus&gt;
+#&lt;procedure (?)&gt;
+#&lt;procedure (scheme#write x . rest)&gt;
+#&lt;promise&gt;
+#&lt;output port "(stdout)"&gt;
+#&lt;environment interaction-environment&gt;</pre>
+
+      <h3>Chicken eggs</h3>
+      <pre>#&lt;procedure (tween#quadratic-ease direction123 percent124)&gt;
+#&lt;cjson&gt;
+#&lt;sql-null-type&gt;
+#&lt;sdl2:surface&gt;
+#&lt;sdl2:rect (10 20 300 400)&gt;
+#&lt;mat 2x2</h3>
+4.0 0.0
+0.0 4.0 &gt;</pre>
+
+      <h3>Gambit</h3>
+      <pre>#&lt;procedure #2&gt;
+#&lt;procedure #3 fold&gt;
+#&lt;promise #6&gt;
+#&lt;output-port #2 (stdout)&gt;</pre>
+
+      <h3>Gauche</h3>
+      <pre>#&lt;undef&gt;
+#&lt;eof&gt;
+#&lt;closure (fold kons knil lis . more)&gt;
+#&lt;subr (+ :rest args)&gt;
+#&lt;subr "continuation"&gt;
+#&lt;promise 0x102097fa0&gt;
+#&lt;subr #&lt;&lt;parameter&gt; 0x102ae8800&gt;&gt;
+#&lt;oport (standard output) 0x100d3cc00&gt;
+#&lt;module user&gt;</pre>
+
+      <h3>Guile</h3>
+      <pre>#&lt;unspecified&gt;
+#&lt;eof&gt;
+#&lt;procedure + (#:optional _ _ . _)&gt;
+#&lt;continuation 10716dae0&gt;
+#&lt;promise #&lt;procedure 7f9b6980e6a0 at &lt;unknown port&gt;:11:0 ()&gt;&gt;
+#&lt;output: file /dev/ttys001&gt;</pre>
+
+      <h3>Kawa</h3>
+      <pre>#&lt;procedure +&gt;
+#&lt;macro define&gt;
+#&lt;environment main&gt;
+#&lt;output-port /dev/stdout&gt;
+#&lt;location-proc gnu.mapping.ThreadLocation[param#1]&gt;</pre>
+
+      <h3>Mosh</h3>
+      <pre>#&lt;unspecified&gt;
+#&lt;subr +&gt;
+#&lt;closure 62157904&gt;
+#&lt;eof-object&gt;</pre>
+
+      <h3>Sagittarius</h3>
+      <pre>#&lt;unspecified&gt;
+#&lt;eof&gt;
+#&lt;subr + 0:1&gt;
+#&lt;closure #f 0:0&gt;
+#&lt;&lt;promise&gt; 0x10d5200c0&gt;
+#&lt;&lt;parameter&gt; 0x1061970a0&gt;
+#&lt;transcoded-port utf8-codec #&lt;buffered-port #&lt;binary-output-port stdout&gt;&gt;&gt;</pre>
 
       <h2 id="implementation">Implementation</h2>
       <p>A sample implementation that runs on Gauche is attached.</p>
