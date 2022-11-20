@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title></title>
+</head>
+<body>
+  <h1 id="srfi-nnn-unreadable-objects">SRFI nnn: Unreadable
+  objects</h1>
+  <p>by Lassi Kortela</p>
+  <h2 id="status">Status</h2>
+  <p>Draft</p>
+  <h2 id="abstract">Abstract</h2>
+  <p>This SRFI standardizes a widely used lexical syntax for
+  writing unreadable objects.</p>
+  <h2 id="rationale">Rationale</h2>
+  <p>Lisp code is represented as data. A Lisp system can be asked
+  to write any live object as an S-expression. However, it’s
+  inevitable that some of those objects have complex environmental
+  dependencies which are difficult or impossible to write down.</p>
+  <p>The prototypical example of such an object is a port. Other
+  common examples are procedures, continuations, promises,
+  parameters, environments, and libaries. Objects managed by a
+  foreign function interface tend to be unreadable. Objects that
+  stand in for end-of-file and unspecified values are commonly
+  written as unreadable objects since it makes little sense to read
+  them.</p>
+  <p>Common Lisp reserves the lexical syntax
+  <code>#&lt;...&gt;</code> for unreadable objects. The language
+  specification says:</p>
+  <blockquote>
+    <p><code>#&lt;</code> is not valid reader syntax. The Lisp
+    reader will signal an error of type <code>reader-error</code>
+    on encountering <code>#&lt;</code>. This syntax is typically
+    used in the printed representation of objects that cannot be
+    read back in.</p>
+  </blockquote>
+  <p>Apart from being <em>de jure</em> standard in Common Lisp,
+  this syntax is <em>de facto</em> standard in Scheme. It features
+  in so many implementations that using any other syntax for
+  unreadable objects would be going against the grain of both
+  Scheme and Lisp as they are practiced.</p>
+  <h3 id="alternatives">Alternatives</h3>
+  <p>MIT Scheme uses square brackets <code>#[...]</code> instead of
+  angle brackets.</p>
+  <h3 id="conflicts">Conflicts</h3>
+  <p>Chicken and Gambit support multi-line strings via the
+  following syntax. (The syntax imitates the Bourne shell, which
+  calls a multi-line string a “here-document”.)</p>
+  <pre><code>#&lt;&lt;end
+.
+.
+.
+end</code></pre>
+  <p>An arbitrary identifier can be used in place of
+  <code>end</code>.</p>
+  <p><a href="https://srfi.schemers.org/srfi-107/">SRFI 107 (XML
+  reader syntax)</a> uses <code>#&lt;</code> for XML tags mixed in
+  with Scheme code. It is implemented by Kawa. An example of this
+  syntax is <code>#&lt;da&gt;&lt;/da&gt;</code>.</p>
+  <p>In both cases there is a syntactic ambiguity. Chicken, Gambit,
+  and Kawa all use <code>#&lt;</code> to write unreadable objects.
+  Since valid Scheme source code cannot contain unreadable objects,
+  there is no read-time ambiguity for valid code. The ambiguity
+  does make it harder to deal with invalid input where an
+  unreadable object may be silently misinterpreted as some type of
+  readable object or rejected with a confusing error message.</p>
+  <h3 id="skipping-unreadable-data">Skipping unreadable data</h3>
+  <p>The point of unreadable objects is that the Scheme reader
+  cannot read them. Nevertheless it can be useful for a
+  special-purpose reader to skip them.</p>
+  <p>That’s why this SRFI stipulates a stricter syntax than is
+  required by Common Lisp. Specifically, each <code>#&lt;</code>
+  must be balanced by a matching <code>&gt;</code>. The text in
+  between the angle brackets is expected to be zero or more datums.
+  Hence a <code>#&lt;...&gt;</code> can be read just like a list
+  except that the delimiters are angle brackets instead of
+  parentheses. (Common Lisp provides a utility function
+  <code>read-delimited-list</code> in anticipation of jobs like
+  this.)</p>
+  <h2 id="specification">Specification</h2>
+  <h3 id="grammar-extension">Grammar extension</h3>
+  <p>The grammar in R3RS, R4RS, R5RS, or R7RS section 7.1.2.
+  (<em>External representations</em>), or R6RS section 4.3.
+  (<em>Datum syntax</em>), is extended as follows.</p>
+  <p>A new class <code>&lt;unreadable&gt;</code> is added. It
+  matches:</p>
+  <ul>
+    <li>The two-character sequence <code>#&lt;</code>,</li>
+    <li>followed by zero or more instances of the
+    <code>&lt;datum&gt;</code> class,</li>
+    <li>and finally one instance of the character
+    <code>&gt;</code>.</li>
+  </ul>
+  <p>The class <code>&lt;compound datum&gt;</code> is extended such
+  that <code>&lt;unreadable&gt;</code> becomes an instance of
+  it.</p>
+  <p>The standard grammar shows that a <code>&lt;compound
+  datum&gt;</code> is a kind of <code>&lt;datum&gt;</code>. This
+  implies that unreadable objects can be nested.</p>
+  <h3 id="reader-behavior">Reader behavior</h3>
+  <p>Any attempt to read <code>&lt;unreadable&gt;</code> syntax
+  signals an error.</p>
+  <p>However, special-purpose readers which can skip past datums
+  instead of turning every datum into an object may skip
+  <code>&lt;unreadable&gt;</code> datums.</p>
+  <h3 id="recommendations">Recommendations</h3>
+  <p>The Scheme procedures <code>write</code> and
+  <code>display</code> <strong>should</strong> write unreadable
+  objects using <code>#&lt;...&gt;</code> syntax.</p>
+  <p>When writing objects between the angle brackets,
+  <code>write</code> (and not <code>display</code>)
+  <strong>should</strong> always be used. Using
+  <code>display</code> on some objects will yield unskippable
+  syntax.</p>
+  <p>There <strong>should</strong> be one or more datums between
+  the angle brackets. (The zero-datum case is supported for the
+  sake of simplicity and uniformity but looks perplexing.)</p>
+  <p>The first datum <strong>should</strong> be an identifier.
+  Known identifiers are tracked in the <a href=
+  "https://registry.scheme.org/">Scheme Registry</a>.</p>
+  <h2 id="examples">Examples</h2>
+  <p>Chez Scheme:</p>
+  <div class="sourceCode" id="cb2">
+    <pre class="sourceCode scheme"><code class=
+    "sourceCode scheme"><span id="cb2-1"><a href="#cb2-1"
+    aria-hidden="true" tabindex="-1"></a><span class=
+    "st">#&lt;void&gt;</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex=
+"-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex=
+"-1"></a><span class="st">#&lt;procedure&gt;</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex=
+"-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex=
+"-1"></a><span class="st">#&lt;procedure</span><span class=
+"ot"> +</span><span class="st">&gt;</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex=
+"-1"></a></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex=
+"-1"></a><span class="st">#&lt;procedure</span><span class=
+"ot"> fold-left</span><span class="st">&gt;</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex=
+"-1"></a></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex=
+"-1"></a><span class="st">#&lt;environment</span><span class=
+"ot"> *top*</span><span class="st">&gt;</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex=
+"-1"></a></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex=
+"-1"></a><span class="st">#&lt;input/output</span><span class=
+"ot"> port stdin/out</span><span class=
+"st">&gt;</span></span></code></pre>
+  </div>
+  <p>Chibi-Scheme:</p>
+  <div class="sourceCode" id="cb3">
+    <pre class="sourceCode scheme"><code class=
+    "sourceCode scheme"><span id="cb3-1"><a href="#cb3-1"
+    aria-hidden="true" tabindex="-1"></a><span class=
+    "st">#&lt;undef&gt;</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex=
+"-1"></a></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex=
+"-1"></a><span class="st">#&lt;eof&gt;</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex=
+"-1"></a></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex=
+"-1"></a><span class="st">#&lt;procedure</span><span class=
+"ot"> #f 0</span><span class="st">&gt;</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex=
+"-1"></a></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex=
+"-1"></a><span class="st">#&lt;procedure</span><span class=
+"ot"> append 0+</span><span class="st">&gt;</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex=
+"-1"></a></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex=
+"-1"></a><span class="st">#&lt;opcode</span><span class=
+"ot"> "write-char"</span><span class="st">&gt;</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex=
+"-1"></a></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex=
+"-1"></a><span class="st">#&lt;Output-Port</span><span class=
+"ot"> 140501393508544</span><span class="st">&gt;</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex=
+"-1"></a></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex=
+"-1"></a><span class="st">#&lt;Environment</span><span class=
+"ot"> 140501393819456</span><span class=
+"st">&gt;</span></span></code></pre>
+  </div>
+  <p>Chicken:</p>
+  <div class="sourceCode" id="cb4">
+    <pre class="sourceCode scheme"><code class=
+    "sourceCode scheme"><span id="cb4-1"><a href="#cb4-1"
+    aria-hidden="true" tabindex="-1"></a><span class=
+    "st">#&lt;unspecified&gt;</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex=
+"-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex=
+"-1"></a><span class="st">#&lt;procedure</span><span class=
+"ot"> C_plus</span><span class="st">&gt;</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex=
+"-1"></a></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex=
+"-1"></a><span class="st">#&lt;procedure</span><span class=
+"ot"> (?)</span><span class="st">&gt;</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex=
+"-1"></a></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex=
+"-1"></a><span class="st">#&lt;procedure</span><span class=
+"ot"> (scheme#write x . rest)</span><span class=
+"st">&gt;</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex=
+"-1"></a></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex=
+"-1"></a><span class="st">#&lt;promise&gt;</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex=
+"-1"></a></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex=
+"-1"></a><span class="st">#&lt;output</span><span class=
+"ot"> port "(stdout)"</span><span class="st">&gt;</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex=
+"-1"></a></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex=
+"-1"></a><span class="st">#&lt;environment</span><span class=
+"ot"> interaction-environment</span><span class=
+"st">&gt;</span></span></code></pre>
+  </div>
+  <p>Chicken eggs:</p>
+  <div class="sourceCode" id="cb5">
+    <pre class="sourceCode scheme"><code class=
+    "sourceCode scheme"><span id="cb5-1"><a href="#cb5-1"
+    aria-hidden="true" tabindex="-1"></a><span class=
+    "st">#&lt;procedure</span><span class=
+    "ot"> (tween#quadratic-ease direction123 percent124)</span><span class="st">&gt;</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex=
+"-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex=
+"-1"></a><span class="st">#&lt;cjson&gt;</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex=
+"-1"></a></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex=
+"-1"></a><span class="st">#&lt;sql-null-type&gt;</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex=
+"-1"></a></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex=
+"-1"></a><span class="st">#&lt;sdl2:surface&gt;</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex=
+"-1"></a></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex=
+"-1"></a><span class="st">#&lt;sdl2:rect</span><span class=
+"ot"> (10 20 300 400)</span><span class="st">&gt;</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex=
+"-1"></a></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex=
+"-1"></a><span class="st">#&lt;mat</span><span class=
+"ot"> 2x2:</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex=
+"-1"></a><span class="ot">4.0 0.0</span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex=
+"-1"></a><span class="ot">0.0 4.0 </span><span class=
+"st">&gt;</span></span></code></pre>
+  </div>
+  <p>Gambit:</p>
+  <div class="sourceCode" id="cb6">
+    <pre class="sourceCode scheme"><code class=
+    "sourceCode scheme"><span id="cb6-1"><a href="#cb6-1"
+    aria-hidden="true" tabindex="-1"></a><span class=
+    "st">#&lt;procedure</span><span class=
+    "ot"> #2</span><span class="st">&gt;</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex=
+"-1"></a></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex=
+"-1"></a><span class="st">#&lt;procedure</span><span class=
+"ot"> #3 fold</span><span class="st">&gt;</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex=
+"-1"></a></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex=
+"-1"></a><span class="st">#&lt;promise</span><span class=
+"ot"> #6</span><span class="st">&gt;</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex=
+"-1"></a></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex=
+"-1"></a><span class="st">#&lt;output-port</span><span class=
+"ot"> #2 (stdout)</span><span class=
+"st">&gt;</span></span></code></pre>
+  </div>
+  <p>Gauche:</p>
+  <div class="sourceCode" id="cb7">
+    <pre class="sourceCode scheme"><code class=
+    "sourceCode scheme"><span id="cb7-1"><a href="#cb7-1"
+    aria-hidden="true" tabindex="-1"></a><span class=
+    "st">#&lt;undef&gt;</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex=
+"-1"></a></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex=
+"-1"></a><span class="st">#&lt;eof&gt;</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex=
+"-1"></a></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex=
+"-1"></a><span class="st">#&lt;closure</span><span class=
+"ot"> (fold kons knil lis . more)</span><span class=
+"st">&gt;</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex=
+"-1"></a></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex=
+"-1"></a><span class="st">#&lt;subr</span><span class=
+"ot"> (+ :rest args)</span><span class="st">&gt;</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex=
+"-1"></a></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex=
+"-1"></a><span class="st">#&lt;subr</span><span class=
+"ot"> "continuation"</span><span class="st">&gt;</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex=
+"-1"></a></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex=
+"-1"></a><span class="st">#&lt;promise</span><span class=
+"ot"> 0x102097fa0</span><span class="st">&gt;</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex=
+"-1"></a></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex=
+"-1"></a><span class="st">#&lt;subr</span><span class=
+"ot"> #&lt;&lt;parameter</span><span class=
+"st">&gt; 0x102ae8800&gt;&gt;</span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex=
+"-1"></a></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex=
+"-1"></a><span class="st">#&lt;oport</span><span class=
+"ot"> (standard output) 0x100d3cc00</span><span class=
+"st">&gt;</span></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex=
+"-1"></a></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex=
+"-1"></a><span class="st">#&lt;module</span><span class=
+"ot"> user</span><span class="st">&gt;</span></span></code></pre>
+  </div>
+  <p>Guile:</p>
+  <div class="sourceCode" id="cb8">
+    <pre class="sourceCode scheme"><code class=
+    "sourceCode scheme"><span id="cb8-1"><a href="#cb8-1"
+    aria-hidden="true" tabindex="-1"></a><span class=
+    "st">#&lt;unspecified&gt;</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex=
+"-1"></a></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex=
+"-1"></a><span class="st">#&lt;eof&gt;</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex=
+"-1"></a></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex=
+"-1"></a><span class="st">#&lt;procedure</span><span class=
+"ot"> + (#:optional _ _ . _)</span><span class=
+"st">&gt;</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex=
+"-1"></a></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex=
+"-1"></a><span class="st">#&lt;continuation</span><span class=
+"ot"> 10716dae0</span><span class="st">&gt;</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex=
+"-1"></a></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex=
+"-1"></a><span class="st">#&lt;promise</span><span class=
+"ot"> #&lt;procedure 7f9b6980e6a0 at &lt;unknown port</span><span class="st">&gt;:11:0 ()&gt;&gt;</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex=
+"-1"></a></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex=
+"-1"></a><span class="st">#&lt;output:</span><span class=
+"ot"> file /dev/ttys001</span><span class=
+"st">&gt;</span></span></code></pre>
+  </div>
+  <p>Kawa:</p>
+  <div class="sourceCode" id="cb9">
+    <pre class="sourceCode scheme"><code class=
+    "sourceCode scheme"><span id="cb9-1"><a href="#cb9-1"
+    aria-hidden="true" tabindex="-1"></a><span class=
+    "st">#&lt;procedure</span><span class="ot"> +</span><span class=
+    "st">&gt;</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex=
+"-1"></a></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex=
+"-1"></a><span class="st">#&lt;macro</span><span class=
+"ot"> define</span><span class="st">&gt;</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex=
+"-1"></a></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex=
+"-1"></a><span class="st">#&lt;environment</span><span class=
+"ot"> main</span><span class="st">&gt;</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex=
+"-1"></a></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex=
+"-1"></a><span class="st">#&lt;output-port</span><span class=
+"ot"> /dev/stdout</span><span class="st">&gt;</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex=
+"-1"></a></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex=
+"-1"></a><span class="st">#&lt;location-proc</span><span class=
+"ot"> gnu.mapping.ThreadLocation[param#1]</span><span class=
+"st">&gt;</span></span></code></pre>
+  </div>
+  <p>Mosh:</p>
+  <div class="sourceCode" id="cb10">
+    <pre class="sourceCode scheme"><code class=
+    "sourceCode scheme"><span id="cb10-1"><a href="#cb10-1"
+    aria-hidden="true" tabindex="-1"></a><span class=
+    "st">#&lt;unspecified&gt;</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex=
+"-1"></a></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex=
+"-1"></a><span class="st">#&lt;subr</span><span class=
+"ot"> +</span><span class="st">&gt;</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex=
+"-1"></a></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex=
+"-1"></a><span class="st">#&lt;closure</span><span class=
+"ot"> 62157904</span><span class="st">&gt;</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex=
+"-1"></a></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex=
+"-1"></a><span class=
+"st">#&lt;eof-object&gt;</span></span></code></pre>
+  </div>
+  <p>Sagittarius:</p>
+  <div class="sourceCode" id="cb11">
+    <pre class="sourceCode scheme"><code class=
+    "sourceCode scheme"><span id="cb11-1"><a href="#cb11-1"
+    aria-hidden="true" tabindex="-1"></a><span class=
+    "st">#&lt;unspecified&gt;</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex=
+"-1"></a></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex=
+"-1"></a><span class="st">#&lt;eof&gt;</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex=
+"-1"></a></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex=
+"-1"></a><span class="st">#&lt;subr</span><span class=
+"ot"> + 0:1</span><span class="st">&gt;</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex=
+"-1"></a></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex=
+"-1"></a><span class="st">#&lt;closure</span><span class=
+"ot"> #f 0:0</span><span class="st">&gt;</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex=
+"-1"></a></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex=
+"-1"></a><span class=
+"st">#&lt;&lt;promise&gt; 0x10d5200c0&gt;</span></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex=
+"-1"></a></span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex=
+"-1"></a><span class=
+"st">#&lt;&lt;parameter&gt; 0x1061970a0&gt;</span></span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex=
+"-1"></a></span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex=
+"-1"></a><span class="st">#&lt;transcoded-port</span><span class=
+"ot"> utf8-codec #&lt;buffered-port #&lt;binary-output-port stdout</span><span class="st">&gt;&gt;&gt;</span></span></code></pre>
+  </div>
+  <h2 id="implementation">Implementation</h2>
+  <p>A sample implementation that runs on Gauche is attached.</p>
+  <h2 id="acknowledgements">Acknowledgements</h2>
+  <p>Thanks to Common Lisp for blazing the trail, and to the Scheme
+  implementers who followed suit.</p>
+  <h2 id="references">References</h2>
+  <p><a href="http://clhs.lisp.se/Body/02_dht.htm">The Common Lisp
+  HyperSpec, section 2.4.8.20</a> (<em>Sharpsign
+  Less-Than-Sign</em>)</p>
+  <h2 id="copyright">Copyright</h2>
+  <p>Copyright (C) Lassi Kortela (2022).</p>
+  <p>Permission is hereby granted, free of charge, to any person
+  obtaining a copy of this software and associated documentation
+  files (the “Software”), to deal in the Software without
+  restriction, including without limitation the rights to use,
+  copy, modify, merge, publish, distribute, sublicense, and/or sell
+  copies of the Software, and to permit persons to whom the
+  Software is furnished to do so, subject to the following
+  conditions:</p>
+  <p>The above copyright notice and this permission notice
+  (including the next paragraph) shall be included in all copies or
+  substantial portions of the Software.</p>
+  <p>THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY
+  KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+  WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
+  AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+  HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+  WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+  OTHER DEALINGS IN THE SOFTWARE.</p>
+</body>
+</html>
