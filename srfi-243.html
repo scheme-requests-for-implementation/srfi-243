@@ -310,6 +310,10 @@
   <p><code>(unwritable-error-object error) =&gt; object</code></p>
   <p>Returns the original object for which no stand-in could be
   written.</p>
+  <p>If one or more unwritable objects are nested within an
+  otherwise writable object, it is unspecified whether the object
+  returned by <code>unwritable-error-object</code> is the top-level
+  object or one of the nested unwritable objects.</p>
   <h3 id="condition-types">Condition types</h3>
   <p>In implementations with an R6RS-style condition system, it is
   recommended that the condition types <code>&amp;unreadable</code>
