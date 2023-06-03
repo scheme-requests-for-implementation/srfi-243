@@ -31,7 +31,9 @@ $HOME/tmp/stklos/bin/stklos demo.scm
 The script ~demo.scm~ outputs:
 
 #+BEGIN_SRC
-unreadable: (here is an unreadable object #[1 2 #[3 4 5]])
+inner stand-in: (3 4 5)
+outer stand-in: (1 2 #[3 4 5])
+top object: (here is an unreadable object #[1 2 #[3 4 5]])
 #+END_SRC
 
 One can also play with unreadable objects in the ~stklos~ REPL.
