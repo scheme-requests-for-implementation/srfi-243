@@ -1,0 +1,37 @@
+* SRFI 243 STklos implementation
+
+This is a sample implementation of SRFI 243 for the STklos Scheme
+implementation.
+
+The STklos reader now raises an unreadable-error? when it reads #[...]
+syntax. It tries to read the [...] as a well formed Scheme datum, and
+that datum can be accessed via the error's unreadable-error-object.
+
+Requirements:
+
+- The git, patch, and make Unix utilities.
+- GNU automake.
+- C compiler (gcc or clang).
+
+Running:
+
+#+BEGIN_SRC
+git clone https://github.com/egallesio/STklos.git
+cd STklos
+git checkout 402e614
+patch --strip 1 <../stklos-402e614-unreadable.patch
+automake
+./configure --prefix=$HOME/tmp/stklos
+make
+make install
+cd ..
+$HOME/tmp/stklos/bin/stklos demo.scm
+#+END_SRC
+
+The script ~demo.scm~ outputs:
+
+#+BEGIN_SRC
+unreadable: (here is an unreadable object #[1 2 #[3 4 5]])
+#+END_SRC
+
+One can also play with unreadable objects in the ~stklos~ REPL.

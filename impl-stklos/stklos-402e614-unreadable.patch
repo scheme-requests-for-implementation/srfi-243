@@ -1,0 +1,418 @@
+commit eb807459c06cd713f30acb12ace23586264bc620 (HEAD -> lassik-unreadable)
+Author: Lassi Kortela <lassi@lassi.io>
+Date:   Sat Jun 3 15:29:07 2023 +0300
+
+    Modify reader to support SRFI 243
+    
+    The STklos reader now raises an unreadable-error? when it reads #[...]
+    syntax. It tries to read the [...] as a well formed Scheme datum, and
+    that datum can be accessed via the error's unreadable-error-object.
+
+diff --git a/SUPPORTED-SRFIS b/SUPPORTED-SRFIS
+index 24b985e6..9b941e23 100644
+--- a/SUPPORTED-SRFIS
++++ b/SUPPORTED-SRFIS
+@@ -135,4 +135,5 @@ implemented in latest version is available at https://stklos.net/srfi.html):
+     - SRFI-235: Combinators
+     - SRFI-236: Evaluating expressions in an unspecified order
+     - SRFI-238: Codesets
++    - SRFI-243: Unreadable data
+     - SRFI-244: Multiple-value definitions
+diff --git a/lib/srfi/243.stk b/lib/srfi/243.stk
+new file mode 100644
+index 00000000..9cd96bd6
+--- /dev/null
++++ b/lib/srfi/243.stk
+@@ -0,0 +1,32 @@
++;;;;
++;;;;
++;;;; 243.stk         -- Support for SRFI 243 (Unreadable Data)
++;;;;
++
++(define-library (srfi 243)
++  (import SCHEME)
++  (export
++
++   unreadable-object?
++   unreadable-object
++   unreadable-object-stand-in
++
++   unreadable-error?
++   unreadable-error-object
++
++   &unreadable-error
++   unreadable-error?
++   unreadable-error-object
++
++   ;;&unwritable-error?
++   ;;unwritable-error?
++   ;;unwritable-error-object
++
++   )
++  (begin
++
++    (%define-condition-type-accessors &unreadable-error &read-error
++                                      unreadable-error?
++                                      (object unreadable-error-object))))
++
++(provide "srfi/243")
+diff --git a/lib/srfi/Makefile.am b/lib/srfi/Makefile.am
+index 492705c6..e65c9194 100644
+--- a/lib/srfi/Makefile.am
++++ b/lib/srfi/Makefile.am
+@@ -140,6 +140,7 @@ SRC_STK   = 1.stk   \
+             233.stk \
+             235.stk \
+             236.stk \
++            243.stk \
+             244.stk
+ 
+ SRC_OSTK =  1.ostk   \
+@@ -250,6 +251,7 @@ SRC_OSTK =  1.ostk   \
+             233.ostk \
+             235.ostk \
+             236.ostk \
++            243.ostk \
+             244.ostk
+ 
+ 
+diff --git a/lib/srfi/Makefile.in b/lib/srfi/Makefile.in
+index 7312f394..7d6fbe36 100644
+--- a/lib/srfi/Makefile.in
++++ b/lib/srfi/Makefile.in
+@@ -505,6 +505,7 @@ SRC_STK = 1.stk   \
+             233.stk \
+             235.stk \
+             236.stk \
++            243.stk \
+             244.stk
+ 
+ SRC_OSTK = 1.ostk   \
+@@ -615,6 +616,7 @@ SRC_OSTK = 1.ostk   \
+             233.ostk \
+             235.ostk \
+             236.ostk \
++            243.ostk \
+             244.ostk
+ 
+ 
+diff --git a/lib/srfis.stk b/lib/srfis.stk
+index 88560987..5c075ed1 100644
+--- a/lib/srfis.stk
++++ b/lib/srfis.stk
+@@ -282,6 +282,7 @@
+     ;; 241 Match -- Simple Pattern-Matching Syntax to Express Catamorphisms on Scheme Data (drafr)
+     ;; 242 The CFG Language (draft)
+     ;; 243 Unreadable objects (draft)
++    (243 "Unreadable data" (unreadable) "srfi-243")
+     (244 "Multiple-value definitions")
+     ))
+ 
+diff --git a/src/print.c b/src/print.c
+index 1cd797fa..21f55f75 100644
+--- a/src/print.c
++++ b/src/print.c
+@@ -44,7 +44,8 @@ static void printlist(SCM exp, SCM port, int mode)
+     }
+   }
+ 
+-  STk_putc('(', port);
++  STk_putc(((mode & SQUARE_BRACKETS_MODE) ? '[' : '('),
++           port);
+   STk_print(CAR(exp), port, mode);
+ 
+   for (tmp=CDR(exp); CONSP(tmp); tmp=CDR(tmp)) {
+@@ -55,7 +56,8 @@ static void printlist(SCM exp, SCM port, int mode)
+     STk_nputs(port, " . ", 3);
+     STk_print(tmp, port, mode);
+   }
+-  STk_putc(')', port);
++  STk_putc(((mode & SQUARE_BRACKETS_MODE) ? ']' : ')'),
++           port);
+ }
+ 
+ 
+@@ -63,7 +65,7 @@ static Inline void printsymbol(SCM symb, SCM port, int mode)
+ {
+   const char *s = SYMBOL_PNAME(symb);
+ 
+-  if ((mode==WRT_MODE) &&
++  if ((mode & WRT_MODE) &&
+       ((BOXED_INFO(symb) & SYMBOL_NEEDS_BARS) ||
+        ((!PORT_CASE_SENSITIVEP(port)) && (BOXED_INFO(symb) & SYMBOL_HAS_UPPER)))) {
+     STk_putc('|', port);
+@@ -84,7 +86,7 @@ static Inline void printsymbol(SCM symb, SCM port, int mode)
+         STk_putc('\\', port);
+         STk_putc(c, port);
+       }
+-      else 
++      else
+         STk_putc(*s, port);
+    }
+     STk_putc('|', port);
+@@ -96,7 +98,7 @@ static Inline void printkeyword(SCM key, SCM port, int mode)
+ {
+   const char *s = KEYWORD_PNAME(key);
+ 
+-  if (mode==WRT_MODE) {
++  if (mode & WRT_MODE) {
+     if ((BOXED_INFO(key) & SYMBOL_NEEDS_BARS) ||
+         ((!PORT_CASE_SENSITIVEP(port)) && (BOXED_INFO(key) & SYMBOL_HAS_UPPER))) {
+       STk_nputs(port, "#:|", 3);  STk_puts(s, port); STk_putc('|', port);
+@@ -116,7 +118,7 @@ static Inline char printhexa(int x)
+ 
+ static void printstring(SCM s, SCM port, int mode)
+ {
+-  if (mode == DSP_MODE) {
++  if (!(mode & WRT_MODE)) {
+     STk_putstring(s, port);
+   } else {
+     register char *p    = STRING_CHARS(s);
+@@ -200,7 +202,7 @@ void STk_print(SCM exp, SCM port, int mode)
+     char buffer[5] = {0};
+     int c = CHARACTER_VAL(exp);
+ 
+-    if (mode!=DSP_MODE){
++    if (mode & WRT_MODE) {
+       char *s = STk_char2string(c);
+ 
+       STk_puts("#\\", port);
+@@ -360,7 +362,8 @@ static void printlist_star(SCM exp, SCM port, int mode, cycles *c)
+     }
+   }
+ 
+-  STk_putc('(', port);
++  STk_putc(((mode & SQUARE_BRACKETS_MODE) ? '[' : '('),
++           port);
+ 
+   for ( ; ; ) {
+     print_cycle(CAR(exp), port, mode, c);
+@@ -376,7 +379,8 @@ static void printlist_star(SCM exp, SCM port, int mode, cycles *c)
+     }
+     STk_putc(' ', port);
+   }
+-  STk_putc(')', port);
++  STk_putc(((mode & SQUARE_BRACKETS_MODE) ? ']' : ')'),
++           port);
+ }
+ 
+ 
+diff --git a/src/read.c b/src/read.c
+index 9790f60a..0d70c085 100644
+--- a/src/read.c
++++ b/src/read.c
+@@ -33,6 +33,7 @@ struct read_context {
+   int comment_level;
+   int case_significant;
+   int constant;
++  int unreadable_obj;
+ };
+ 
+ 
+@@ -40,7 +41,7 @@ static SCM read_srfi10(SCM port, SCM l);
+ static SCM read_rec(SCM port, struct read_context *ctx, int inlist);
+ 
+ static SCM sym_quote, sym_quasiquote, sym_unquote, sym_unquote_splicing, sym_dot;
+-static SCM sym_read_brace, sym_read_bracket, read_error;
++static SCM sym_read_brace, sym_read_bracket, read_error, unreadable_error;
+ 
+ int STk_read_case_sensitive = DEFAULT_CASE_SENSITIVE;
+ 
+@@ -66,24 +67,95 @@ int STk_read_case_sensitive = DEFAULT_CASE_SENSITIVE;
+ 
+ static char colon_pos = COLON_BOTH;
+ 
++struct unreadable_obj {
++  stk_header header;
++  SCM stand_in;
++};
++
++static int tc_unreadable;
++
++#define UNREADABLE_OBJECT_P(p) (BOXED_TYPE_EQ((p), tc_unreadable))
++#define UNREADABLE_OBJECT_STAND_IN(p) (((struct unreadable_obj *) (p))->stand_in)
++
++static void print_unreadable_object(SCM uro, SCM port, int _UNUSED(mode))
++{
++  STk_fprintf(port, "#");
++  STk_print_star(UNREADABLE_OBJECT_STAND_IN(uro),
++                 port,
++                 WRT_MODE | SQUARE_BRACKETS_MODE);
++}
++
++static struct extended_type_descr xtype_unreadable = {
++  .name = "unreadable-object",
++  .print = print_unreadable_object
++};
++
++DEFINE_PRIMITIVE("unreadable-object", unreadable_object, subr1, (SCM stand_in))
++{
++  SCM z;
++
++  NEWCELL(z, unreadable);
++  UNREADABLE_OBJECT_STAND_IN(z) = stand_in;
++  return z;
++}
++
++DEFINE_PRIMITIVE("unreadable-object?", unreadable_object_p, subr1, (SCM obj))
++{
++  return UNREADABLE_OBJECT_P(obj) ? STk_true : STk_false;
++}
++
++DEFINE_PRIMITIVE("unreadable-object-stand-in", unreadable_object_stand_in,
++                 subr1, (SCM uro))
++{
++  if (!UNREADABLE_OBJECT_P(uro))
++    STk_error("not an unreadable object ~s", uro);
++  return UNREADABLE_OBJECT_STAND_IN(uro);
++}
++
++
+ /*===========================================================================*\
+  *
+  * Utilities
+  *
+-\*===========================================================================*/
++ \*===========================================================================*/
+ static void signal_error(SCM port, char *format, SCM param)
+ {
+-  STk_raise_exception(STk_make_C_cond(read_error,
+-                                      7,
+-                                      STk_false,
+-                                      STk_vm_bt(),
+-                                      STk_format_error(format, param),
+-                                      MAKE_INT(PORT_LINE(port)),    /* line */
+-                                      STk_false,                    /* column */
+-                                      MAKE_INT(PORT_POS(port)),     /* position */
+-                                      STk_false));                  /* span */
++  SCM message;
++
++  message = STk_format_error(format, param);
++  STk_raise_exception(
++    STk_make_C_cond(read_error,
++                    9,
++                    STk_false,                  /* location  */
++                    STk_vm_bt(),                /* backtrace */
++                    message,                    /* message */
++                    message,                    /* r7rs-msg */
++                    STk_nil,                    /* r7rs-irritants */
++                    MAKE_INT(PORT_LINE(port)),  /* line */
++                    STk_false,                  /* column */
++                    MAKE_INT(PORT_POS(port)),   /* position */
++                    STk_false));                /* span */
+ }
+ 
++static void error_unreadable(SCM port, SCM unreadable)
++{
++  SCM message;
++
++  message = STk_format_error("unreadable: ~S", unreadable);
++  STk_raise_exception(
++    STk_make_C_cond(unreadable_error,
++                    10,
++                    STk_false,                  /* location  */
++                    STk_vm_bt(),                /* backtrace */
++                    message,                    /* message */
++                    message,                    /* r7rs-msg */
++                    STk_nil,                    /* r7rs-irritants */
++                    MAKE_INT(PORT_LINE(port)),  /* line */
++                    STk_false,                  /* column */
++                    MAKE_INT(PORT_POS(port)),   /* position */
++                    STk_false,                  /* span */
++                    STk_unreadable_object(unreadable))); /* unreadable */
++}
+ 
+ static void error_token_too_large(SCM port, char *tok)
+ {
+@@ -825,6 +897,14 @@ static SCM maybe_read_uniform_vector(SCM port, int c, struct read_context *ctx)
+   return STk_void;
+ }
+ 
++static SCM read_unreadable(SCM port, struct read_context *ctx)
++{
++  SCM list;
++
++  ctx->unreadable_obj = TRUE;
++  list = read_list(port, ']', ctx);
++  return STk_unreadable_object(list);
++}
+ 
+ static SCM read_rec(SCM port, struct read_context *ctx, int inlist)
+ {
+@@ -988,6 +1068,7 @@ static SCM read_rec(SCM port, struct read_context *ctx, int inlist)
+                          goto default_sharp;
+                        }
+                     }
++          case '[': return read_unreadable(port, ctx);
+           case '&': return STk_make_box(read_rec(port, ctx, inlist));
+           case 'p':
+           case 'P': return read_address(port);
+@@ -1082,6 +1163,7 @@ static SCM read_it(SCM port, int case_significant, int constant)
+   ctx.comment_level    = 0;
+   ctx.case_significant = case_significant;
+   ctx.constant         = constant;
++  ctx.unreadable_obj   = FALSE;
+ 
+   if (c == EOF)
+     return STk_eof;
+@@ -1093,6 +1175,11 @@ static SCM read_it(SCM port, int case_significant, int constant)
+   if (!NULLP(ctx.inner_refs)) {
+     patch_references(port, ctx.inner_refs, ctx.cycles);
+   }
++
++  if (ctx.unreadable_obj) {
++    error_unreadable(port, res);
++  }
++
+   return res;
+ }
+ 
+@@ -1266,6 +1353,7 @@ DEFINE_PRIMITIVE("%read-list", user_read_list, subr2, (SCM port, SCM end_delim))
+   ctx.comment_level    = 0;
+   ctx.case_significant = PORT_CASE_SENSITIVEP(port);
+   ctx.constant         = TRUE;
++  ctx.unreadable_obj   = FALSE;
+ 
+   return read_list(port, CHARACTER_VAL(end_delim), &ctx);
+ }
+@@ -1285,14 +1373,26 @@ int STk_init_reader(void)
+   sym_read_bracket     = STk_intern("%read-bracket");
+   sym_read_brace       = STk_intern("%read-brace");
+ 
++  tc_unreadable = STk_new_user_type(&xtype_unreadable);
++
++  ADD_PRIMITIVE(unreadable_object_p);
++  ADD_PRIMITIVE(unreadable_object);
++  ADD_PRIMITIVE(unreadable_object_stand_in);
++
+   /* read-error condition */
+-  read_error = STk_defcond_type("&read-error", STk_err_mess_condition,
++  read_error = STk_defcond_type("&read-error",
++                                STk_err_mess_condition,
+                                 LIST4(STk_intern("line"),
+                                       STk_intern("column"),
+                                       STk_intern("position"),
+                                       STk_intern("span")),
+                                 STk_STklos_module);
+ 
++  /* unreadable-error condition */
++  unreadable_error = STk_defcond_type("&unreadable-error",
++                                      read_error,
++                                      LIST1(STk_intern("object")),
++                                      STk_STklos_module);
+ 
+   /* Declare SRFI-10 support function */
+   ADD_PRIMITIVE(reader_ctor);
+diff --git a/src/stklos.h b/src/stklos.h
+index d67147ed..40ff735b 100644
+--- a/src/stklos.h
++++ b/src/stklos.h
+@@ -1080,6 +1080,8 @@ extern int STk_interactive;                     /* We are in interactive mode */
+ #define DSP_MODE                0
+ #define WRT_MODE                1
+ 
++#define SQUARE_BRACKETS_MODE    2
++
+ void STk_print(SCM exp, SCM port, int mode);
+ void STk_print_star(SCM exp, SCM port, int mode);
+ 
