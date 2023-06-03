@@ -85,6 +85,9 @@
       </ul>
     </li>
     <li>
+      <a href="#examples">Examples</a>
+    </li>
+    <li>
       <a href="#implementation">Implementation</a>
     </li>
     <li>
@@ -321,6 +324,22 @@
   <p>The first element of the list should be a symbol. Known
   symbols are tracked in the <a href=
   "https://registry.scheme.org/">Scheme Registry</a>.</p>
+  <h2 id="examples">Examples</h2>
+  <p>Assume an implementation that reads and writes unreadable
+  objects using the lexical syntax <code>#[...]</code> such that
+  the <code>[...]</code> part represents a list.</p>
+  <p>Then the following code snippet:</p>
+  <pre>(guard (err
+        (unreadable-error?
+         (display "unreadable: ")
+         (write (unreadable-object-stand-in
+                 (unreadable-error-object err)))
+         (newline)))
+
+       (read-from-string "(here is an unreadable object #[1 2 #[3 4 5]])"))</pre>
+  <p>will display the following output:</p>
+  <pre>
+unreadable: (here is an unreadable object #[1 2 #[3 4 5]])</pre>
   <h2 id="implementation">Implementation</h2>
   <p>Two sample implementations are provided.</p>
   <ul>
