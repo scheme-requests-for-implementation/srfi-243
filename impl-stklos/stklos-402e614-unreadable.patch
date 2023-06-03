@@ -1,6 +1,6 @@
-commit eb807459c06cd713f30acb12ace23586264bc620 (HEAD -> lassik-unreadable)
+commit 12ce00951add00df2b02a8cf7b99519143cd725d (HEAD -> lassik-unreadable)
 Author: Lassi Kortela <lassi@lassi.io>
-Date:   Sat Jun 3 15:29:07 2023 +0300
+Date:   Sat Jun 3 16:56:16 2023 +0300
 
     Modify reader to support SRFI 243
     
@@ -198,7 +198,7 @@ index 1cd797fa..21f55f75 100644
  
  
 diff --git a/src/read.c b/src/read.c
-index 9790f60a..0d70c085 100644
+index 9790f60a..72fedefd 100644
 --- a/src/read.c
 +++ b/src/read.c
 @@ -33,6 +33,7 @@ struct read_context {
@@ -302,11 +302,11 @@ index 9790f60a..0d70c085 100644
 +                    STk_false));                /* span */
  }
  
-+static void error_unreadable(SCM port, SCM unreadable)
++static void error_unreadable(SCM port, SCM object)
 +{
 +  SCM message;
 +
-+  message = STk_format_error("unreadable: ~S", unreadable);
++  message = STk_format_error("unreadable: ~S", object);
 +  STk_raise_exception(
 +    STk_make_C_cond(unreadable_error,
 +                    10,
@@ -319,7 +319,7 @@ index 9790f60a..0d70c085 100644
 +                    STk_false,                  /* column */
 +                    MAKE_INT(PORT_POS(port)),   /* position */
 +                    STk_false,                  /* span */
-+                    STk_unreadable_object(unreadable))); /* unreadable */
++                    object));                   /* unreadable */
 +}
  
  static void error_token_too_large(SCM port, char *tok)
