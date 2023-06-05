@@ -1,256 +1,412 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <title>SRFI 243: Unreadable Objects</title>
-    <link href="/favicon.png" rel="icon" sizes="192x192" type="image/png">
-    <link rel="stylesheet" href="https://srfi.schemers.org/srfi.css" type="text/css">
-    <meta name="viewport" content="width=device-width, initial-scale=1"></head>
-    <body>
-      <h1 id="srfi-243-unreadable-objects"><a href="https://srfi.schemers.org/"><img class="srfi-logo" src="https://srfi.schemers.org/srfi-logo.svg" alt="SRFI surfboard logo" /></a>243: Unreadable Objects</h1>
-      <p>by Lassi Kortela</p>
-
-      <h2 id="status">Status</h2>
-
-      <p>This SRFI is currently in <em>draft</em> status.  Here is <a href="https://srfi.schemers.org/srfi-process.html">an explanation</a> of each status that a SRFI can hold.  To provide input on this SRFI, please send email to <code><a href="mailto:srfi+minus+243+at+srfi+dotschemers+dot+org">srfi-243@<span class="antispam">nospam</span>srfi.schemers.org</a></code>.  To subscribe to the list, follow <a href="https://srfi.schemers.org/srfi-list-subscribe.html">these instructions</a>.  You can access previous messages via the mailing list <a href="https://srfi-email.schemers.org/srfi-243/">archive</a>.</p>
+<head>
+  <meta charset="utf-8">
+  <title>SRFI 243: Unreadable Data</title>
+  <link href="/favicon.png" rel="icon" sizes="192x192" type=
+  "image/png">
+  <link rel="stylesheet" href="https://srfi.schemers.org/srfi.css"
+  type="text/css">
+  <meta name="viewport" content=
+  "width=device-width, initial-scale=1">
+</head>
+<body>
+  <h1 id="srfi-243-unreadable-data"><a href=
+  "https://srfi.schemers.org/"><img class="srfi-logo" src=
+  "https://srfi.schemers.org/srfi-logo.svg" alt=
+  "SRFI surfboard logo"></a>243: Unreadable Data</h1>
+  <p>by Lassi Kortela</p>
+  <h2 id="status">Status</h2>
+  <p>This SRFI is currently in <em>draft</em> status. Here is
+  <a href="https://srfi.schemers.org/srfi-process.html">an
+  explanation</a> of each status that a SRFI can hold. To provide
+  input on this SRFI, please send email to <code><a href=
+  "mailto:srfi+minus+243+at+srfi+dotschemers+dot+org">srfi-243@<span class="antispam">nospam</span>srfi.schemers.org</a></code>.
+  To subscribe to the list, follow <a href=
+  "https://srfi.schemers.org/srfi-list-subscribe.html">these
+  instructions</a>. You can access previous messages via the
+  mailing list <a href=
+  "https://srfi-email.schemers.org/srfi-243/">archive</a>.</p>
+  <ul>
+    <li>Received: 2022-11-18</li>
+    <li>60-day deadline: 2023-01-19</li>
+    <li>Draft #1 published: 2022-11-20</li>
+  </ul>
+  <h2 id="abstract">Abstract</h2>
+  <p>This SRFI suggests how the Scheme reader and writer should
+  handle unreadable data in general, and unreadable objects in
+  particular.</p>
+  <h2 id="issues">Issues</h2>
+  <p>None at present.</p>
+  <h2>Table of contents</h2>
+  <ul>
+    <li>
+      <a href="#rationale">Rationale</a>
       <ul>
-	<li>Received: 2022-11-18</li>
-	<li>60-day deadline: 2023-01-19</li>
-	<li>Draft #1 published: 2022-11-20</li>
+        <li>
+          <a href="#what-is-unreadable-data">What is unreadable
+          data?</a>
+        </li>
+        <li>
+          <a href="#existing-syntax">Existing syntax</a>
+        </li>
+        <li>
+          <a href="#data-versus-objects">Data versus objects</a>
+        </li>
+        <li>
+          <a href="#unreadable-objects">Unreadable objects</a>
+        </li>
+        <li>
+          <a href="#unreadable-data">Unreadable data</a>
+        </li>
+        <li>
+          <a href="#future-ports">Future ports</a>
+        </li>
       </ul>
-
-      <h2 id="abstract">Abstract</h2>
-      <p>This SRFI standardizes a widely used lexical syntax for
-	writing unreadable objects.</p>
-
-      <h2 id="issues">Issues</h2>
-      <p>None at present.</p>
-
-      <h2 id="rationale">Rationale</h2>
-      <p>Lisp code is represented as data. A Lisp system can be asked
-	to write any live object as an S-expression. However, it’s
-	inevitable that some of those objects have complex environmental
-	dependencies which are difficult or impossible to write down.</p>
-      <p>The prototypical example of such an object is a port. Other
-	common examples are procedures, continuations, promises,
-	parameters, environments, and libraries. Objects managed by a
-	foreign function interface tend to be unreadable. Objects that
-	stand in for end-of-file and unspecified values are commonly
-	written as unreadable objects since it makes little sense to read
-	them.</p>
-      <p>Common Lisp reserves the lexical syntax
-	<code>#&lt;...&gt;</code> for unreadable objects. The language
-	specification says:</p>
-      <blockquote>
-	<p><code>#&lt;</code> is not valid reader syntax. The Lisp
-	  reader will signal an error of type <code>reader-error</code>
-	  on encountering <code>#&lt;</code>. This syntax is typically
-	  used in the printed representation of objects that cannot be
-	  read back in.</p>
-      </blockquote>
-      <p>Apart from being <em>de jure</em> standard in Common Lisp,
-	this syntax is <em>de facto</em> standard in Scheme. It features
-	in so many implementations that using any other syntax for
-	unreadable objects would be going against the grain of both
-	Scheme and Lisp as they are practiced.</p>
-      <h3 id="alternatives">Alternatives</h3>
-      <p>MIT Scheme uses square brackets <code>#[...]</code> instead of
-	angle brackets.</p>
-      <h3 id="conflicts">Conflicts</h3>
-      <p>Chicken and Gambit support multi-line strings via the
-	following syntax. (The syntax imitates the Bourne shell, which
-	calls a multi-line string a “here-document”.)</p>
-      <pre><code>#&lt;&lt;end
-.
-.
-.
-end</code></pre>
-      <p>An arbitrary identifier can be used in place of
-	<code>end</code>.</p>
-      <p><a href="https://srfi.schemers.org/srfi-107/">SRFI 107 (XML
-	reader syntax)</a> uses <code>#&lt;</code> for XML tags mixed in
-	with Scheme code. It is implemented by Kawa. An example of this
-	syntax is <code>#&lt;da&gt;&lt;/da&gt;</code>.</p>
-      <p>In both cases there is a syntactic ambiguity. Chicken, Gambit,
-	and Kawa all use <code>#&lt;</code> to write unreadable objects.
-	Since valid Scheme source code cannot contain unreadable objects,
-	there is no read-time ambiguity for valid code. The ambiguity
-	does make it harder to deal with invalid input where an
-	unreadable object may be silently misinterpreted as some type of
-	readable object or rejected with a confusing error message.</p>
-      <h3 id="skipping-unreadable-data">Skipping unreadable data</h3>
-      <p>The point of unreadable objects is that the Scheme reader
-	cannot read them. Nevertheless it can be useful for a
-	special-purpose reader to skip them.</p>
-      <p>That’s why this SRFI stipulates a stricter syntax than is
-	required by Common Lisp. Specifically, each <code>#&lt;</code>
-	must be balanced by a matching <code>&gt;</code>. The text in
-	between the angle brackets is expected to be zero or more datums.
-	Hence a <code>#&lt;...&gt;</code> can be read just like a list
-	except that the delimiters are angle brackets instead of
-	parentheses. (Common Lisp provides a utility function
-	<code>read-delimited-list</code> in anticipation of jobs like
-	this.)</p>
-
-      <h2 id="specification">Specification</h2>
-      <h3 id="grammar-extension">Grammar extension</h3>
-      <p>The grammar in R3RS, R4RS, R5RS, or R7RS section 7.1.2.
-	(<em>External representations</em>), or R6RS section 4.3.
-	(<em>Datum syntax</em>), is extended as follows.</p>
-      <p>A new class <code>&lt;unreadable&gt;</code> is added. It
-	matches:</p>
+    </li>
+    <li>
+      <a href="#specification">Specification</a>
       <ul>
-	<li>The two-character sequence <code>#&lt;</code>,</li>
-	<li>followed by zero or more instances of the
-	  <code>&lt;datum&gt;</code> class,</li>
-	<li>and finally one instance of the character
-	  <code>&gt;</code>.</li>
+        <li>
+          <a href="#stand-in-objects">Stand-in objects</a>
+        </li>
+        <li>
+          <a href="#reading">Reading</a>
+        </li>
+        <li>
+          <a href="#writing">Writing</a>
+        </li>
       </ul>
-      <p>The class <code>&lt;compound datum&gt;</code> is extended such
-	that <code>&lt;unreadable&gt;</code> becomes an instance of
-	it.</p>
-      <p>The standard grammar shows that a <code>&lt;compound
-  datum&gt;</code> is a kind of <code>&lt;datum&gt;</code>. This
-	implies that unreadable objects can be nested.</p>
-      <h3 id="reader-behavior">Reader behavior</h3>
-      <p>Any attempt to read <code>&lt;unreadable&gt;</code> syntax
-	signals an error.</p>
-      <p>However, special-purpose readers which can skip past datums
-	instead of turning every datum into an object may skip
-	<code>&lt;unreadable&gt;</code> datums.</p>
-      <h3 id="recommendations">Recommendations</h3>
-      <p>The Scheme procedures <code>write</code> and
-	<code>display</code> <strong>should</strong> write unreadable
-	objects using <code>#&lt;...&gt;</code> syntax.</p>
-      <p>When writing objects between the angle brackets,
-	<code>write</code> (and not <code>display</code>)
-	<strong>should</strong> always be used. Using
-	<code>display</code> on some objects will yield unskippable
-	syntax.</p>
-      <p>There <strong>should</strong> be one or more datums between
-	the angle brackets. (The zero-datum case is supported for the
-	sake of simplicity and uniformity but looks perplexing.)</p>
-      <p>The first datum <strong>should</strong> be an identifier.
-	Known identifiers are tracked in the <a href="https://registry.scheme.org/">Scheme Registry</a>.</p>
+    </li>
+    <li>
+      <a href="#recommendations">Recommendations</a>
+    </li>
+    <li>
+      <a href="#examples">Examples</a>
+    </li>
+    <li>
+      <a href="#implementation">Implementation</a>
+    </li>
+    <li>
+      <a href="#acknowledgements">Acknowledgements</a>
+    </li>
+    <li>
+      <a href="#references">References</a>
+    </li>
+  </ul>
+  <h2 id="rationale">Rationale</h2>
+  <h3 id="what-is-unreadable-data">What is unreadable data?</h3>
+  <p>Lisp code is represented as data. A Lisp system can be asked
+  to write any live object as an S-expression. However, it’s
+  inevitable that some of those objects have complex environmental
+  dependencies which are difficult or impossible to write down.</p>
+  <p>The prototypical example of such an object is a port. Other
+  common examples are procedures, continuations, promises,
+  parameters, environments, and libraries. Objects managed by a
+  foreign function interface tend to be unreadable. Additionally,
+  objects that stand in for end-of-file and unspecified values are
+  commonly written as unreadable objects since it makes little
+  sense to read them.</p>
+  <h3 id="existing-syntax">Existing syntax</h3>
+  <p>Common Lisp reserves the lexical syntax
+  <code>#&lt;...&gt;</code> for unreadable data.</p>
+  <p>Apart from being <em>de jure</em> standard in Common Lisp,
+  this syntax is <em>de facto</em> standard in Scheme.</p>
+  <p>For example, Chicken writes a port as <code>#&lt;output port
+  "(stdout)"&gt;</code>.</p>
+  <p>MIT Scheme and STklos use square brackets <code>#[...]</code>
+  instead of angle brackets.</p>
+  <p>For example, MIT Scheme writes a port as
+  <code>#[textual-i/o-port 12 for console]</code>.</p>
+  <h3 id="data-versus-objects">Data versus objects</h3>
+  <p>The syntaxes <code>#&lt;...&gt;</code> and <code>#[...]</code>
+  look as if the brackets are intended to delimit an S-expression
+  like parentheses delimit lists. But the delimiters tend to be
+  illusory.</p>
+  <p>Angle brackets are not delimiters in any Scheme implementation
+  nor in Common Lisp. They are identifier characters used in the
+  names of well-known procedures such as <code>&lt;</code> and
+  <code>string&gt;=</code>.</p>
+  <p>Scheme implementations accepting square brackets as list
+  delimiters are common but far from universal, and these
+  implementations tend to use <code>#&lt;...&gt;</code> syntax for
+  unreadable data. STklos is the only known implementation which
+  both accepts <code>[...]</code> lists and uses
+  <code>#[...]</code> for unreadable data.</p>
+  <p>The use of identifier characters like <code>&lt;</code>
+  <code>&gt;</code> as delimiters implies the writer will not
+  output a well-formed S-expression. The standard Scheme
+  <code>write</code> procedure is meant to output an internally
+  consistent structure whereas <code>display</code> may take more
+  liberties. The use of ill-formed syntax to write unreadable
+  objects suits the spirit of <code>display</code> but not the
+  spirit of <code>write</code>.</p>
+  <p>When one or more unreadable objects are nested in an otherwise
+  readable structure, and are written using ill-formed syntax, the
+  reader cannot recover any part of the structure. Nor can it
+  recover subsequent structures from the same port. This will cause
+  difficulties when S-expressions become more pervasive. As people
+  work with larger and more heterogeneous expressions in a wider
+  variety of contexts, it will be inconvenient to ensure that all
+  written expressions consist only of readable objects.</p>
+  <h3 id="unreadable-objects">Unreadable objects</h3>
+  <p>In this SRFI we talk about <em>unreadable data</em> in general
+  and <em>unreadable objects</em> in particular.</p>
+  <p>An <em>unreadable object</em> is any object written as a
+  well-formed S-expression such that the reader cannot recover the
+  original object, but can recover a <em>stand-in object</em>
+  representing the original.</p>
+  <p>For example, assume an implementation which can parse the
+  lexical syntax <code>#[primitive append]</code> and extract a
+  list of two symbols, <code>primitive</code> and
+  <code>append</code>. The syntax represents an unreadable object
+  (presumably the standard procedure <code>append</code>) and the
+  list is the stand-in for the original object.</p>
+  <p>Since the syntax is well-formed, the reader can keep reading
+  past the unreadable object to recover more objects (if there are
+  any). The reader can also handle structures containing any mix of
+  readable and unreadable objects nested to an arbitrary depth. For
+  example, the following structure is lightly adapted from Chez
+  Scheme.</p>
+  <pre>
+#[transcoded-port utf8-codec #[buffered-port #[binary-output-port stdout]]]</pre>
+  <p>To differentiate between readable and unreadable objects in
+  nested structures, this SRFI introduces a special data type for
+  unreadable objects. (The data type simply encapsulates the
+  stand-in object.)</p>
+  <h3 id="unreadable-data">Unreadable data</h3>
+  <p>The syntax <code>#&lt;...&gt;</code> is deeply entrenched in
+  Lisp and Scheme culture and cannot be rooted out in any
+  reasonable amount of time. This SRFI tries to broker peace by not
+  dictating any particular syntax. Implementations are free to keep
+  using traditional syntax.</p>
+  <p>Unfortunately the <code>#&lt;...&gt;</code> syntax does not
+  meet the requirements given above for <em>unreadable
+  objects</em>. For example, the Common Lisp specification
+  says:</p>
+  <blockquote>
+    <p><code>#&lt;</code> is not valid reader syntax. The Lisp
+    reader will signal an error of type <code>reader-error</code>
+    on encountering <code>#&lt;</code>. This syntax is typically
+    used in the printed representation of objects that cannot be
+    read back in.</p>
+  </blockquote>
+  <p>Scheme implementations behave similarly: The reader simply
+  discards all text following the marker <code>#&lt;</code>.</p>
+  <p>We accommodate syntaxes of this kind by providing the minimal
+  guarantee that the implementation stops reading after
+  encountering the unreadable data marker and raises an exception.
+  The exception handler may read the rest of the data from the port
+  as unstructured text if the programmer so chooses.</p>
+  <h3 id="future-ports">Future ports</h3>
+  <p>Current editions of RnRS say that <code>read</code> and
+  <code>write</code> use textual ports. There is no fundamental
+  reason for this restriction. Binary S-expressions have been
+  demonstrated to work well, and could be accessed via the same
+  programming interface as textual S-expressions. In fact, even
+  non-S-expression formats such as JSON and ASN.1 could share the
+  same interface.</p>
+  <p>Consequently the specification in this SRFI avoids talking
+  about text. Instead it talks about <em>data</em> which can be
+  either text or bytes.</p>
+  <p>It makes sense for a large Scheme implementation to support
+  more than one variant of S-expression syntax or even to have a
+  programmable reader and writer. There is no existing standard,
+  but there is a consensus that the best approach is to attach a
+  lexical syntax to each port object. This way different ports can
+  use different syntax without getting mixed up.</p>
+  <p>This SRFI addresses the situation by requiring
+  <code>read</code> and <code>write</code> to mind which port they
+  are dealing with, and to use the appropriate syntax (if any) for
+  unreadable data on that port.</p>
+  <h2 id="specification">Specification</h2>
+  <h3 id="stand-in-objects">Stand-in objects</h3>
+  <p><code>(unreadable-object? object) =&gt; boolean</code></p>
+  <p>Return <code>#t</code> if <em>object</em> stands in for an
+  unreadable object. Else return <code>#f</code>.</p>
+  <p><code>(unreadable-object stand-in) =&gt;
+  unreadable-object</code></p>
+  <p>Make an unreadable object using the given <em>stand-in</em>,
+  which can be any object.</p>
+  <p><code>(unreadable-object-stand-in unreadable-object) =&gt;
+  stand-in</code></p>
+  <p>Return the stand-in of <em>unreadable-object</em>.</p>
+  <h3 id="reading">Reading</h3>
+  <p><code>(read [port]) =&gt; object</code></p>
+  <p>This RnRS procedure is expanded to account for unreadable
+  data. (Similar modifications should be made to other procedures
+  that read objects from ports.)</p>
+  <p>When encountering a top-level object that contains one or more
+  unreadable objects, or is itself an unreadable object, a
+  <code>unreadable-error</code> is raised and the
+  <code>unreadable-error-object</code> is the offending top-level
+  object. The top-level object has been encoded such that each
+  unreadable object in it (including the top-level object itself,
+  if it is unreadable) is wrapped in the
+  <code>unreadable-object</code> data type. The port position lies
+  directly after the top-level object. It is unspecified whether or
+  not atmosphere (whitespace and comments) following the top-level
+  object have been consumed. The programmer may attempt to read
+  more objects from the port.</p>
+  <p>When encountering unreadable data that is not an unreadable
+  object, an <code>unreadable-error</code> is raised and the
+  <code>unreadable-error-object</code> is <code>#f</code>. The port
+  position lies immediately after the marker which indicates the
+  start of unreadable data. For example, in the case of a textual
+  port for which the unreadable data marker is <code>#&lt;</code>
+  the next <code>read-char</code> will read the character
+  immediately following the <code>&lt;</code>. In general, it does
+  not make sense to attempt to read objects from the port at this
+  point.</p>
+  <p><code>(unreadable-error? object) =&gt; boolean</code></p>
+  <p>Return <code>#t</code> if <em>object</em> is an unreadable
+  data error. Else return <code>#f</code>.</p>
+  <p>All unreadable data errors also satisfy the RnRS
+  <code>read-error?</code> predicate. In other words, unreadable
+  data errors are a subtype of read errors.</p>
+  <p><code>(unreadable-error-object error) =&gt; object</code></p>
+  <p>If all unreadable data were encoded as stand-in objects which
+  the implementation was able to read, return the top-level object
+  containing those unreadable objects. The top-level object may or
+  may not itself be an unreadable object.</p>
+  <p>If the unreadable data was not encoded as a stand-in, the
+  return value is <code>#f</code>.</p>
+  <h3 id="writing">Writing</h3>
+  <p><code>(write object [port])</code></p>
+  <p>This RnRS procedure is expanded to account for unreadable
+  data. (Similar modifications should be made to
+  <code>display</code>, <code>write-shared</code>,
+  <code>write-simple</code>, and other procedures that write
+  objects to ports.)</p>
+  <p>If <em>object</em> satisfies <code>unreadable-object?</code>
+  or is some other type of unreadable object for which a stand-in
+  can be generated, then the stand-in is written to <em>port</em>
+  using an implementation-defined lexical syntax. The syntax may
+  vary based on implementation-defined settings attached to
+  <em>port</em>.</p>
+  <p>For example, the stand-in <code>(procedure append)</code> — a
+  list of the two symbols <code>procedure</code> and
+  <code>append</code> — could represent a procedure and could be
+  written using the syntax <code>#[procedure append]</code>.</p>
+  <p>If <em>object</em> cannot be written to <em>port</em> for
+  syntax reasons then an exception satisfying
+  <code>unwritable-error?</code> is raised.</p>
+  <p><code>(unwritable-error? object) =&gt; boolean</code></p>
+  <p>Return <code>#t</code> if <em>object</em> is an unwritable
+  object error. Else return <code>#f</code>.</p>
+  <p>Possible causes for the error include the following.</p>
+  <ul>
+    <li>The port's syntax cannot encode any unreadable data at
+    all.</li>
+    <li>The implementation does not know how to encode a stand-in
+    for this particular object.</li>
+    <li>The programmer has set an implementation-defined flag
+    saying that trying to write unreadable data to the port should
+    raise an error.</li>
+  </ul>
+  <p><code>(unwritable-error-object error) =&gt; object</code></p>
+  <p>Returns the original object for which no stand-in could be
+  written.</p>
+  <p>If one or more unwritable objects are nested within an
+  otherwise writable object, it is unspecified whether the object
+  returned by <code>unwritable-error-object</code> is the top-level
+  object or one of the nested unwritable objects.</p>
+  <h2 id="recommendations">Recommendations</h2>
+  <p>In implementations with an R6RS-style condition system, it is
+  recommended that the condition types <code>&amp;unreadable</code>
+  and <code>&amp;unwritable</code> be defined.</p>
+  <p>The implementation should write well-formed unreadable objects
+  instead of ill-formed unreadable data whenever feasible.</p>
+  <p>The unreadable object syntax should closely resemble the
+  syntax for ordinary lists, for example by using parentheses or
+  square brackets with a suitable prefix.</p>
+  <p>The stand-in should be a list.</p>
+  <p>The first element of the list should be a symbol. Known
+  symbols are tracked in the <a href=
+  "https://registry.scheme.org/">Scheme Registry</a>.</p>
+  <h2 id="examples">Examples</h2>
+  <p>Assume an implementation that reads and writes unreadable
+  objects using the lexical syntax <code>#[...]</code> such that
+  the <code>[...]</code> part represents a list.</p>
+  <p>Then the following code snippet:</p>
+  <pre>(guard (err
+        (unreadable-error?
+         (let* ((top (unreadable-error-object err))
+                (outer (unreadable-object-stand-in (list-ref top 5)))
+                (inner (unreadable-object-stand-in (list-ref outer 2))))
+           (define (wr msg obj) (display msg) (write obj) (newline))
+           (wr "inner stand-in: " inner)
+           (wr "outer stand-in: " outer)
+           (wr "top object: " top))))
 
-      <h2 id="examples">Examples</h2>
-
-      <h3>Chez Scheme</h3>
-      <pre>
-#&lt;void&gt;
-#&lt;procedure&gt;
-#&lt;procedure +&gt;
-#&lt;procedure fold-left&gt;
-#&lt;environment *top*&gt;
-#&lt;input/output port stdin/out&gt;</pre>
-
-      <h3>Chibi-Scheme</h3>
-      <pre>#&lt;undef&gt;
-#&lt;eof&gt;
-#&lt;procedure #f 0&gt;
-#&lt;procedure append 0+&gt;
-#&lt;opcode "write-char"&gt;
-#&lt;Output-Port 140501393508544&gt;
-#&lt;Environment 140501393819456&gt;</pre>
-
-      <h3>Chicken</h3>
-      <pre>#&lt;unspecified&gt;
-#&lt;procedure C_plus&gt;
-#&lt;procedure (?)&gt;
-#&lt;procedure (scheme#write x . rest)&gt;
-#&lt;promise&gt;
-#&lt;output port "(stdout)"&gt;
-#&lt;environment interaction-environment&gt;</pre>
-
-      <h3>Chicken eggs</h3>
-      <pre>#&lt;procedure (tween#quadratic-ease direction123 percent124)&gt;
-#&lt;cjson&gt;
-#&lt;sql-null-type&gt;
-#&lt;sdl2:surface&gt;
-#&lt;sdl2:rect (10 20 300 400)&gt;
-#&lt;mat 2x2
-4.0 0.0
-0.0 4.0 &gt;</pre>
-
-      <h3>Gambit</h3>
-      <pre>#&lt;procedure #2&gt;
-#&lt;procedure #3 fold&gt;
-#&lt;promise #6&gt;
-#&lt;output-port #2 (stdout)&gt;</pre>
-
-      <h3>Gauche</h3>
-      <pre>#&lt;undef&gt;
-#&lt;eof&gt;
-#&lt;closure (fold kons knil lis . more)&gt;
-#&lt;subr (+ :rest args)&gt;
-#&lt;subr "continuation"&gt;
-#&lt;promise 0x102097fa0&gt;
-#&lt;subr #&lt;&lt;parameter&gt; 0x102ae8800&gt;&gt;
-#&lt;oport (standard output) 0x100d3cc00&gt;
-#&lt;module user&gt;</pre>
-
-      <h3>Guile</h3>
-      <pre>#&lt;unspecified&gt;
-#&lt;eof&gt;
-#&lt;procedure + (#:optional _ _ . _)&gt;
-#&lt;continuation 10716dae0&gt;
-#&lt;promise #&lt;procedure 7f9b6980e6a0 at &lt;unknown port&gt;:11:0 ()&gt;&gt;
-#&lt;output: file /dev/ttys001&gt;</pre>
-
-      <h3>Kawa</h3>
-      <pre>#&lt;procedure +&gt;
-#&lt;macro define&gt;
-#&lt;environment main&gt;
-#&lt;output-port /dev/stdout&gt;
-#&lt;location-proc gnu.mapping.ThreadLocation[param#1]&gt;</pre>
-
-      <h3>Mosh</h3>
-      <pre>#&lt;unspecified&gt;
-#&lt;subr +&gt;
-#&lt;closure 62157904&gt;
-#&lt;eof-object&gt;</pre>
-
-      <h3>Sagittarius</h3>
-      <pre>#&lt;unspecified&gt;
-#&lt;eof&gt;
-#&lt;subr + 0:1&gt;
-#&lt;closure #f 0:0&gt;
-#&lt;&lt;promise&gt; 0x10d5200c0&gt;
-#&lt;&lt;parameter&gt; 0x1061970a0&gt;
-#&lt;transcoded-port utf8-codec #&lt;buffered-port #&lt;binary-output-port stdout&gt;&gt;&gt;</pre>
-
-      <h2 id="implementation">Implementation</h2>
-      <p>A sample implementation that runs on Gauche is in the <a href="https://github.com/scheme-requests-for-implementation/srfi-243">Git repo.</a></p>
-
-      <h2 id="acknowledgements">Acknowledgements</h2>
-      <p>Thanks to Common Lisp for blazing the trail, and to the Scheme
-	implementers who followed suit.</p>
-
-      <h2 id="references">References</h2>
-      <p><a href="http://clhs.lisp.se/Body/02_dht.htm">The Common Lisp
-	HyperSpec, section 2.4.8.20</a> (<em>Sharpsign
-	Less-Than-Sign</em>)</p>
-
-      <h2 id="copyright">Copyright</h2>
-      <p>&copy; 2022 Lassi Kortela.</p>
-      <p>Permission is hereby granted, free of charge, to any person
-	obtaining a copy of this software and associated documentation
-	files (the “Software”), to deal in the Software without
-	restriction, including without limitation the rights to use,
-	copy, modify, merge, publish, distribute, sublicense, and/or sell
-	copies of the Software, and to permit persons to whom the
-	Software is furnished to do so, subject to the following
-	conditions:</p>
-      <p>The above copyright notice and this permission notice
-	(including the next paragraph) shall be included in all copies or
-	substantial portions of the Software.</p>
-      <p>THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY
-	KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
-	WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
-	AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
-	HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-	WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-	FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
-	OTHER DEALINGS IN THE SOFTWARE.</p>
-      <hr>
-      <address>Editor: <a href="mailto:srfi-editors+at+srfi+dot+schemers+dot+org">Arthur A. Gleckler</a></address></body></html>
+       (read-from-string "(here is an unreadable object #[1 2 #[3 4 5]])"))</pre>
+  <p>will display the following output:</p>
+  <pre>inner stand-in: (3 4 5)
+outer stand-in: (1 2 #[3 4 5])
+top object: (here is an unreadable object #[1 2 #[3 4 5]])
+</pre>
+  <h2 id="implementation">Implementation</h2>
+  <p>Two sample implementations are provided.</p>
+  <ul>
+    <li>One written in Scheme as a patch to Göran Weinholt's
+    "laesare" library.</li>
+    <li>One written in C as a patch to the STklos Scheme
+    implementation.</li>
+  </ul>
+  <p>In general, the following implementation strategy is
+  recommended.</p>
+  <ul>
+    <li>When reading nested data, keep a flag to remember whether
+    any unreadable objects have been encountered.</li>
+    <li>Every such object is wrapped in the
+    <code>unreadable-object</code> data type and the wrapped object
+    is stored in the structure being built. Keep in mind that
+    unreadable objects can be nested.</li>
+    <li>When the top-level read procedure has built a complete
+    object, it checks the unreadable object flag. If the flag is
+    set, it raises an <code>unreadable-error</code> exception whose
+    <code>unreadable-error-object</code> is the offending top-level
+    object. If the flag is not set, it returns the object as
+    usual.</li>
+    <li>If the reader encounters unreadable data that isn't an
+    unreadable object, it immediately raises an
+    <code>unreadable-error</code> exception whose
+    <code>unreadable-error-object</code> is <code>#f</code> without
+    trying to read anything more.</li>
+  </ul>
+  <h2 id="acknowledgements">Acknowledgements</h2>
+  <p>Thanks to Marc Nieper-Wißkirchen for a thorough discussion of
+  the problems in parsing <code>#&lt;...&gt;</code>.</p>
+  <h2 id="references">References</h2>
+  <p><a href="http://clhs.lisp.se/Body/02_dht.htm">The Common Lisp
+  HyperSpec, section 2.4.8.20</a> (<em>Sharpsign
+  Less-Than-Sign</em>)</p>
+  <h2 id="copyright">Copyright</h2>
+  <p>© 2022, 2023 Lassi Kortela.</p>
+  <p>Permission is hereby granted, free of charge, to any person
+  obtaining a copy of this software and associated documentation
+  files (the “Software”), to deal in the Software without
+  restriction, including without limitation the rights to use,
+  copy, modify, merge, publish, distribute, sublicense, and/or sell
+  copies of the Software, and to permit persons to whom the
+  Software is furnished to do so, subject to the following
+  conditions:</p>
+  <p>The above copyright notice and this permission notice
+  (including the next paragraph) shall be included in all copies or
+  substantial portions of the Software.</p>
+  <p>THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY
+  KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+  WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
+  AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+  HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+  WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+  OTHER DEALINGS IN THE SOFTWARE.</p>
+  <hr>
+  <address>
+    Editor: <a href=
+    "mailto:srfi-editors+at+srfi+dot+schemers+dot+org">Arthur A.
+    Gleckler</a>
+  </address>
+</body>
+</html>

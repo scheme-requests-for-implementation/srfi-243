@@ -1,0 +1,29 @@
+* SRFI 243 laesare implementation
+
+This is a sample implementation of SRFI 243 for Göran Weinholt's
+"laesare" library. Laesare is a Scheme tokenizer, reader, and writer
+that runs on R6RS. It can read and write R6RS and R7RS syntax.
+
+The patch teaches the laesare reader to recognize two new kinds of
+lexical syntax:
+
+- Unreadable data with ~#<~ syntax. The data after ~#<~ cannot be parsed.
+
+- Unreadable object with ~#?foo~ syntax, where ~foo~ is any datum.
+
+Requirements:
+
+- The git and patch Unix utilities.
+- Akku, the Scheme package manager.
+- Akku-compatible R6RS Scheme implementation, e.g. Chez Scheme.
+
+Running:
+
+#+BEGIN_SRC
+git clone https://gitlab.com/weinholt/laesare.git
+cd laesare
+git checkout v1.0.1
+patch --strip 1 <../laesare-1.0.1-unreadable.patch
+akku install
+.akku/env ./run-tests.sh
+#+END_SRC
