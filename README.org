@@ -1,5 +1,5 @@
 
-* SRFI 243: Unreadable Objects
+* SRFI 243: Unreadable Data
 
 ** by Lassi Kortela
 
@@ -7,7 +7,7 @@
 
 keywords: [[https://srfi.schemers.org/?keywords=reader-syntax][Reader Syntax]]
 
-This repository hosts [[https://srfi.schemers.org/srfi-243/][SRFI 243]]: Unreadable Objects, a [[https://srfi.schemers.org/][Scheme Request for Implementation]].
+This repository hosts [[https://srfi.schemers.org/srfi-243/][SRFI 243]]: Unreadable Data, a [[https://srfi.schemers.org/][Scheme Request for Implementation]].
 
 This SRFI is in /draft/ status.
 
