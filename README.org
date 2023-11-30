@@ -9,7 +9,7 @@ keywords: [[https://srfi.schemers.org/?keywords=reader-syntax][Reader Syntax]]
 
 This repository hosts [[https://srfi.schemers.org/srfi-243/][SRFI 243]]: Unreadable Data, a [[https://srfi.schemers.org/][Scheme Request for Implementation]].
 
-This SRFI is in /draft/ status.
+This SRFI is in /withdrawn/ status.
 
 The full documentation for this SRFI can be found in the [[https://srfi.schemers.org/srfi-243/srfi-243.html][SRFI Document]].
 
