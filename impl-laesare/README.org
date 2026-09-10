@@ -1,6 +1,6 @@
 * SRFI 243 laesare implementation
 
-This is a sample implementation of SRFI 243 for Göran Weinholt's
+This is a sample implementation of SRFI 243 for Gwen Weinholt's
 "laesare" library. Laesare is a Scheme tokenizer, reader, and writer
 that runs on R6RS. It can read and write R6RS and R7RS syntax.
 
